@@ -17,3 +17,8 @@ fixes:
     ``SELECT r.id FROM resource r WHERE r.type = '<type>' AND NOT EXISTS
     (SELECT 1 FROM rt_<id> x WHERE x.id = r.id)`` and can be deleted the
     same way, from the ``resource`` table.
+other:
+  - |
+    The new ``[indexer] resource_delete_batch_size`` option (default 1000)
+    sets how many resources a batch delete removes per statement. The
+    resources to delete are no longer read into the API process first.

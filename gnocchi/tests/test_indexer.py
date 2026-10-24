@@ -1187,13 +1187,20 @@ class TestIndexerDriver(tests_base.TestCase):
         for rid in rids:
             self.index.create_resource('indexer_batch_delete', rid,
                                        user2 + ":" + project, user2, project)
-        with mock.patch.object(self.index, 'DELETE_BATCH_SIZE', 2):
-            deleted = self.index.delete_resources(
-                'indexer_batch_delete',
-                attribute_filter={"=": {"user_id": user2}})
+        # Same user, another type: a typed delete must leave it alone.
+        other = uuid.uuid4()
+        self.index.create_resource('generic', other,
+                                   user2 + ":" + project, user2, project)
+        self.conf.set_override('resource_delete_batch_size', 2, 'indexer')
+        self.addCleanup(self.conf.clear_override,
+                        'resource_delete_batch_size', 'indexer')
+        deleted = self.index.delete_resources(
+            'indexer_batch_delete',
+            attribute_filter={"=": {"user_id": user2}})
         self.assertEqual(3, deleted)
         for rid in rids:
             self.assertIsNone(self.index.get_resource('generic', rid))
+        self.assertIsNotNone(self.index.get_resource('generic', other))
 
         # Once its resources are gone, the type can be deleted.
         self.index.delete_resources(
