@@ -124,7 +124,9 @@ class Metric(Base, GnocchiBase, indexer.Metric):
     # then look inactive from the start until its first measures arrive.
     last_measure_timestamp = sqlalchemy.Column(
         "last_measure_timestamp", sqlalchemy.DateTime,
-        default=lambda: datetime.datetime.utcnow(), nullable=False,
+        default=lambda: datetime.datetime.now(
+            tz=datetime.timezone.utc).replace(tzinfo=None),
+        nullable=False,
         server_default=sqlalchemy.sql.func.current_timestamp())
 
     def jsonify(self):

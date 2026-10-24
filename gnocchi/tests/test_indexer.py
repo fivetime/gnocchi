@@ -209,7 +209,8 @@ class TestIndexerDriver(tests_base.TestCase):
         # long, whenever the process creating it was started.
         created = datetime.datetime(2100, 1, 2, 3, 4, 5)
         with mock.patch.object(sqlalchemy_base, "datetime") as dt:
-            dt.datetime.utcnow.return_value = created
+            dt.datetime.now.return_value = created.replace(
+                tzinfo=datetime.timezone.utc)
             m = self.index.create_metric(uuid.uuid4(), str(uuid.uuid4()),
                                          "low")
         m2 = self.index.list_metrics(attribute_filter={"=": {"id": m.id}})
